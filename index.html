@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Form Permohonan</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+
+<body>
+    <header id="header-area" class="fixed-top">
+        <!--== Header Top Start ==-->
+        <div id="header-bottom">
+            <div class="container">
+                <div class="row">
+                    <!--== Logo Start ==-->
+                    <div class="col-lg-4">
+                        <a class="logo">
+                            <img src="assets/img/logo.png" alt="JSOFT">
+                        </a>
+                    </div>
+                    <!--== Logo End ==-->
+                </div>
+            </div>
+        </div>
+        <!--== Header Top End ==-->
+    </header>
+    <form id="permohonanForm" enctype="multipart/form-data">
+        <label for="param_nama">Nama Pembimbing:</label>
+        <input type="text" name="param_nama" id="param_nama"><br><br>
+
+        <label for="param_nik">NIK Pembimbing:</label>
+        <input type="text" name="param_nik" id="param_nik"><br><br>
+
+        <label for="param_email">Email:</label>
+        <input type="email" name="param_email" id="param_email"><br><br>
+
+        <label for="param_telp">Nomor Telepon:</label>
+        <input type="text" name="param_telp" id="param_telp"><br><br>
+
+        <label for="param_asal">Asal Sekolah:</label>
+        <input type="text" name="param_asal" id="param_asal"><br><br>
+
+        <label for="param_jurusan">Jurusan:</label>
+        <input type="text" name="param_jurusan" id="param_jurusan"><br><br>
+
+        <label for="param_magangAwal">Tanggal Awal Magang:</label>
+        <input type="date" name="param_magangAwal" id="param_magangAwal"><br><br>
+
+        <label for="param_magangAkhir">Tanggal Akhir Magang:</label>
+        <input type="date" name="param_magangAkhir" id="param_magangAkhir"><br><br>
+
+        <label for="param_Filektp">File KTP:</label>
+        <input type="file" name="param_Filektp" id="param_Filektp"><br><br>
+
+        <label for="param_FilePermohonan">File Permohonan:</label>
+        <input type="file" name="param_FilePermohonan" id="param_FilePermohonan"><br><br>
+
+        <label for="param_alamatSekolah">Alamat Sekolah:</label>
+        <textarea name="param_alamatSekolah" id="param_alamatSekolah"></textarea><br><br>
+
+        <label for="param_form">Jumlah Peserta:</label>
+        <input type="number" name="param_form" id="param_form" min="1" max="10"><br><br>
+
+        <div id="pesertaContainer">
+            <label>Peserta 1:</label>
+            <input type="text" name="param_namaPeserta[]" placeholder="Nama Peserta"><br>
+            <input type="text" name="param_nikPeserta[]" placeholder="NIK Peserta"><br><br>
+        </div>
+
+        <button type="button" id="tambahPesertaBtn">Tambah Peserta</button><br><br>
+
+        <input type="submit" value="Simpan">
+    </form>
+
+    <script>
+        $(document).ready(function () {
+            $("#permohonanForm").submit(function (event) {
+                event.preventDefault();
+
+                // Mengumpulkan data form
+                var formData = new FormData(this);
+
+                // Mengumpulkan data peserta
+                var pesertaCount = $("#pesertaContainer input[name^='param_namaPeserta']").length;
+                var namaPeserta = [];
+                var nikPeserta = [];
+
+                for (var i = 0; i < pesertaCount; i++) {
+                    namaPeserta.push($("#pesertaContainer input[name='param_namaPeserta[]']").eq(i).val());
+                    nikPeserta.push($("#pesertaContainer input[name='param_nikPeserta[]']").eq(i).val());
+                }
+
+                // Menambahkan data peserta ke dalam formData
+                formData.append('param_namaPeserta', JSON.stringify(namaPeserta));
+                formData.append('param_nikPeserta', JSON.stringify(nikPeserta));
+
+                // Mengirim permintaan AJAX
+                $.ajax({
+                    url: "http://localhost/api_magang/permohonan/simpan",
+                    type: "POST",
+                    data: formData,
+                    dataType: "json",
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        console.log(response);
+                        // Lakukan tindakan setelah permintaan berhasil
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        // Lakukan tindakan jika terjadi kesalahan
+                    }
+                });
+            });
+
+            $("#tambahPesertaBtn").click(function () {
+                var pesertaCount = $("#pesertaContainer input[name^='param_namaPeserta']").length;
+
+                if (pesertaCount < 10) {
+                    var pesertaDiv = $('<div>').html(
+                        '<label>Peserta ' + (pesertaCount + 1) + ':</label>' +
+                        '<input type="text" name="param_namaPeserta[]" placeholder="Nama Peserta"><br>' +
+                        '<input type="text" name="param_nikPeserta[]" placeholder="NIK Peserta"><br><br>'
+                    );
+                    $("#pesertaContainer").append(pesertaDiv);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
